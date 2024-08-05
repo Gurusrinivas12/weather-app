@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" type="text/css" href="/styles/main.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+    <div id="content">
+        <header>
+            <h1>Weather App</h1>
+            <form action="/getweather" method="POST" id="weatherForm">
+                <input type="text" name="city" placeholder="Enter city name" required>
+                <input type="hidden" id="latitude" name="lat">
+                <input type="hidden" id="longitude" name="lon">
+                <button type="submit">Get Weather</button>
+                <button type="button" id="locateButton" onclick="getLocation()">Locate</button>
+            </form>
+        </header>
+
+        <main>
+            <div id="current">
+            <% if (currentContent) { %>
+                <section class="weather-info">
+                    <div class="info1">
+                        <h2 id="cityName"><%= currentContent.name %></h2>
+                        <p><%= currentContent.weather[0].description.charAt(0).toUpperCase() + currentContent.weather[0].description.slice(1) %></p>
+                        <p>Temperature: <%= currentContent.main.temp %>°C</p>
+                        <img src="http://openweathermap.org/img/wn/<%= currentContent.weather[0].icon %>@2x.png" alt="Weather Icon">
+                    </div>
+                    <div class="info2">
+                        <div class="info2_1"><p><img src="/images/humidity.jpg">Humidity: <%= currentContent.main.humidity %>%</p></div>
+                        <div class="info2_2"><p><img src="/images/thermometer.svg">Feels like: <%= currentContent.main.feels_like %>°C</p></div>
+                        <div class="info2_3"><p><img src="/images/wind.png">Wind: <%= currentContent.wind.speed %>Km/h</p></div>
+                        <div class="info2_4"><p><img src="/images/visibility.svg">Visibility: <%= currentContent.visibility %>Km</p></div>
+                    </div>
+                </section>
+            <% } else if (error) { %>
+                <section class="error">
+                    <p><%= error %></p>
+                </section>
+            <% } %>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <div id="footer">
+            <p>&copy; <%= new Date().getFullYear() %> Weather App</p>
+            <p>powered by <span><a href="https://openweathermap.org/"><img src="/images/openweather-seeklogo.svg" id="openweather-logo" height="30px"></a></span></p>
+        </div>
+    </footer>
+
+    <script>
+       function getLocation() {
+    if (navigator.geolocation) {
+        console.log("Attempting to get location...");
+        navigator.geolocation.getCurrentPosition(success, error);
+    } else {
+        alert("Geolocation is not supported by this browser.");
+    }
+}
+
+function success(position) {
+    console.log("Location obtained successfully.");
+    const lat = position.coords.latitude;
+    const lon = position.coords.longitude;
+
+    console.log(`Latitude: ${lat}, Longitude: ${lon}`);
+
+    const latitudeInput = document.getElementById("latitude");
+    const longitudeInput = document.getElementById("longitude");
+    
+    if (latitudeInput && longitudeInput) {
+        latitudeInput.value = lat;
+        longitudeInput.value = lon;
+        console.log("Form fields set, submitting the form...");
+        document.getElementById("weatherForm").submit();
+    } else {
+        console.error("Form fields not found!");
+    }
+}
+
+function error(err) {
+    console.error("Error retrieving location: ", err);
+    alert("Unable to retrieve your location. Please enter your city manually.");
+}
+
+    </script>
+</body>
+</html>
